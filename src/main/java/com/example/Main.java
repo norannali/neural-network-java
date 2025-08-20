@@ -1,17 +1,40 @@
 package com.example;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import network.NeuralNetwork;
+import core.*;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        NeuralNetwork nn = new NeuralNetwork(new MeanSquaredError());
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+        nn.addLayer(3, 5, new ReLU());
+        nn.addLayer(5, 2, new Sigmoid());
+
+        double[] input = {1.0, 0.5, -1.2};
+        double[] target = {0.0, 1.0};
+
+        nn.train(input, target, 0.01);
+
+        double[] prediction = nn.predict(input);
+        System.out.println("Prediction:");
+        for (double p : prediction) {
+            System.out.println(p);
         }
+
+        double loss = nn.computeLoss(input, target);
+        System.out.println("Loss: " + loss);
+
+        double accuracy = computeAccuracy(prediction, target);
+        System.out.println("Accuracy: " + (accuracy * 100) + "%");
+    }
+
+    private static double computeAccuracy(double[] predicted, double[] actual) {
+        int correct = 0;
+        for (int i = 0; i < predicted.length; i++) {
+            if (Math.abs(predicted[i] - actual[i]) < 0.5) { // عتبة الدقة
+                correct++;
+            }
+        }
+        return (double) correct / actual.length;
     }
 }
